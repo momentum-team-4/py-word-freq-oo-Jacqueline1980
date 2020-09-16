@@ -1,3 +1,5 @@
+#pylint: disable=E1101
+
 STOP_WORDS = [
     'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'for', 'from', 'has',
     'he', 'i', 'in', 'is', 'it', 'its', 'of', 'on', 'that', 'the', 'to',
@@ -7,19 +9,25 @@ STOP_WORDS = [
 
 class FileReader:
     def __init__(self, filename):
-        pass
+        self.filename = filename
 
-    def read_contents(self):
-        """
-        This should read all the contents of the file
-        and return them as one string.
-        """
-        raise NotImplementedError("FileReader.read_contents")
+    def read_contents(self, filename):
+        with open(filename, "r") as infile:
+            self.song = infile.read() 
+        return self.song
+        
+    
+
+        # """
+        # This should read all the contents of the file
+        # and return them as one string.
+        # """
+        #raise NotImplementedError("FileReader.read_contents")
 
 
 class WordList:
     def __init__(self, text):
-        pass
+        self.text = text
 
     def extract_words(self):
         """
@@ -27,14 +35,26 @@ class WordList:
         is responsible for lowercasing all words and stripping
         them of punctuation.
         """
-        raise NotImplementedError("WordList.extract_words")
+
+        self.new_text = self.text.lower().replace('.',' ').replace(',',' ').replace('?',' ').replace(':',' ').split()
+        #print(self.new_text)
+
+        #raise NotImplementedError("WordList.extract_words")
 
     def remove_stop_words(self):
         """
         Removes all stop words from our word list. Expected to
         be run after extract_words.
         """
-        raise NotImplementedError("WordList.remove_stop_words")
+        removed_words = []
+
+        for word in self.new_text:
+            if word not in STOP_WORDS:
+                removed_words.append(word)
+            self.removed_words = removed_words
+            #print(word)
+
+        #raise NotImplementedError("WordList.remove_stop_words")
 
     def get_freqs(self):
         """
@@ -43,12 +63,21 @@ class WordList:
         extract_words and remove_stop_words. The data structure
         could be a dictionary or another type of object.
         """
-        raise NotImplementedError("WordList.get_freqs")
+        i = {}
+        for word in self.removed_words:
+            if word not in i.keys():
+                i[word] = 1
+            else:
+                i[word] += 1
+            print(i)
+            self.i = i
+
+        #raise NotImplementedError("WordList.get_freqs")
 
 
 class FreqPrinter:
     def __init__(self, freqs):
-        pass
+        self.freqs = freqs
 
     def print_freqs(self):
         """
@@ -67,7 +96,14 @@ class FreqPrinter:
        rights | 6    ******
         right | 6    ******
         """
-        raise NotImplementedError("FreqPrinter.print_freqs")
+
+        self.freqs = sorted(self.i, key=self.i.get, reverse=True)
+        
+        for num in self.freqs:
+            print(num, self.i[num])
+        return self.freqs
+
+        #raise NotImplementedError("FreqPrinter.print_freqs")
 
 
 if __name__ == "__main__":
@@ -83,7 +119,7 @@ if __name__ == "__main__":
     file = Path(args.file)
     if file.is_file():
         reader = FileReader(file)
-        word_list = WordList(reader.read_contents())
+        word_list = WordList(reader.read_contents(file))
         word_list.extract_words()
         word_list.remove_stop_words()
         printer = FreqPrinter(word_list.get_freqs())
